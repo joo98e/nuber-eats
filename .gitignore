@@ -4,6 +4,7 @@ node_modules/
 # dist
 dist
 dist/*
+/dist
 
 # IDE
 /.idea
@@ -36,5 +37,9 @@ yarn-error.log
 /coverage
 /.nyc_output
 /packages/graphql
-/benchmarks/memory
 build/config\.gypi
+
+# dotenv
+.env.test
+.env.dev
+.env.prod
