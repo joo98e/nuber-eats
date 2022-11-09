@@ -2,6 +2,7 @@ import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 import { CreateRestaurantDto } from "@modules/restaurants/dtos/create-restaurant.dto";
 import { RestaurantsService } from "@modules/restaurants/restaurants.service";
+import { UpdateRestaurantsDto } from "@modules/restaurants/dtos/update-restaurant.dto";
 
 /**
  * of : 어떤 모양인지 알려준다.(Restaurant 를 위한 resolver)
@@ -17,9 +18,20 @@ export class RestaurantsResolver {
   }
 
   @Mutation((returns) => Boolean)
-  async createRestaurant(@Args("input") createRestaurantDto: CreateRestaurantDto): Promise<boolean> {
+  async createRestaurant(@Args("request") request: CreateRestaurantDto): Promise<boolean> {
     try {
-      await this.restaurantService.createRestaurant(createRestaurantDto);
+      await this.restaurantService.createRestaurant(request);
+      return true;
+    } catch (e) {
+      console.log(e);
+      return false;
+    }
+  }
+
+  @Mutation((returns) => Boolean)
+  async updateRestaurants(@Args("request") request: UpdateRestaurantsDto): Promise<boolean> {
+    try {
+      await this.restaurantService.updateRestaurant(request);
       return true;
     } catch (e) {
       console.log(e);
