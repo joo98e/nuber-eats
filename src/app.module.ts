@@ -7,12 +7,14 @@ import { RestaurantsModule } from "@modules/restaurants/restaurants.module";
 import * as Joi from "joi";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 
+const isProd = process.env.NODE_ENV === "prod";
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env.dev",
-      ignoreEnvFile: process.env.NODE_ENV === "prod",
+      ignoreEnvFile: isProd,
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid("dev", "prod").required(),
         DB_HOST: Joi.string().required(),
@@ -29,8 +31,8 @@ import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      synchronize: process.env.NODE_ENV !== "prod",
-      logging: true,
+      synchronize: !isProd, // db push
+      logging: isProd,
       entities: [Restaurant],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
