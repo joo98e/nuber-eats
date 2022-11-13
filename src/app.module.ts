@@ -1,11 +1,12 @@
+import * as Joi from "joi";
 import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
-import { RestaurantsModule } from "@modules/restaurants/restaurants.module";
-import * as Joi from "joi";
-import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
+import { UsersModule } from "./users/users.module";
+import { CommonModule } from "./common/common.module";
+import { User } from "@modules/users/entities/users.entity";
 
 const isProd = process.env.NODE_ENV === "prod";
 
@@ -33,13 +34,14 @@ const isProd = process.env.NODE_ENV === "prod";
       database: process.env.DB_DATABASE,
       synchronize: !isProd, // db push
       logging: isProd,
-      entities: [Restaurant],
+      entities: [User],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
     }),
-    RestaurantsModule,
+    CommonModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [],
