@@ -6,3 +6,9 @@
 
 > user.entity.ts generate.
 
+## Common Module
+
+```javascript
+// return type 정의?
+```
+
