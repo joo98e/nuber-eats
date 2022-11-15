@@ -23,6 +23,7 @@ const isProd = process.env.NODE_ENV === "prod";
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
+        SECRET_JWT_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
