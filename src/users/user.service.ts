@@ -8,6 +8,7 @@ import { LoginInputDto, LoginOutputDto } from "@modules/users/dtos/login.dto";
 import { DefaultResponse } from "@modules/common/dtos/default.response";
 import { ConfigService } from "@nestjs/config";
 import * as jwt from "jsonwebtoken";
+import { JwtService } from "@modules/jwt/jwt.service";
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @TryCatch("Could not create Account.")
@@ -52,9 +54,6 @@ export class UserService {
 
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) return { ok: false, errorMsg: "Password is incorrect." };
-
-      console.log(user.id);
-      console.log(this.configService.get("SECRET_KEY"));
 
       const token = jwt.sign(
         {
