@@ -61,10 +61,7 @@ class Model {
   static values() {}
 }
 
-function create<Class, Optional>(
-  C: { new (U): Class },
-  options: Optional,
-): Class {
+function create<Class, Optional>(C: { new (U): Class }, options: Optional): Class {
   return new C(options);
 }
 
@@ -167,3 +164,14 @@ const good: Good = {
  *                 Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
  *                 NonNullable<T> = T & {};
  */
+
+// type CustomKeyType = "apple" | "banana";
+const customKeyType = ["apple", "banana", "grape", "very"] as const;
+export type CustomKeyType<T extends typeof customKeyType[number]> = CustomKeyMap[T];
+
+type CustomKeyMap = {
+  apple: string;
+  banana: boolean;
+  grape: () => void;
+  very: number;
+};

@@ -1,4 +1,3 @@
-import * as jwt from "jsonwebtoken";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "@modules/users/entities/users.entity";
 import { Repository } from "typeorm";
@@ -6,8 +5,9 @@ import { Injectable } from "@nestjs/common";
 import { CreateAccountInputDto } from "@modules/users/dtos/create-account.dto";
 import { TryCatch } from "@modules/utils/decorator/catch.decorator";
 import { LoginInputDto, LoginOutputDto } from "@modules/users/dtos/login.dto";
-import { DefaultOutputDto } from "@modules/common/dtos/default-output.dto";
+import { DefaultResponse } from "@modules/common/dtos/default.response";
 import { ConfigService } from "@nestjs/config";
+import * as jwt from "jsonwebtoken";
 
 @Injectable()
 export class UserService {
@@ -17,12 +17,8 @@ export class UserService {
     private readonly configService: ConfigService,
   ) {}
 
-  getOne() {
-    return 1;
-  }
-
   @TryCatch("Could not create Account.")
-  async createAccount({ email, password, role }: CreateAccountInputDto): Promise<DefaultOutputDto> {
+  async createAccount({ email, password, role }: CreateAccountInputDto): Promise<DefaultResponse> {
     const exists = await this.userRepository.findOne({
       where: {
         email,
@@ -47,23 +43,30 @@ export class UserService {
     return { ok: true };
   }
 
-  @TryCatch("Could not login with your email or password.")
   async login({ email, password }: LoginInputDto): Promise<LoginOutputDto> {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) return { ok: false, errorMsg: "User not found." };
+    try {
+      const user = await this.userRepository.findOne({ where: { email } });
+      if (!user) {
+        return { ok: false, errorMsg: "User not found." };
+      }
 
-    const passwordCorrect = await user.comparePassword(password);
-    if (!passwordCorrect) return { ok: false, errorMsg: "Password is incorrect." };
+      const passwordCorrect = await user.checkPassword(password);
+      if (!passwordCorrect) return { ok: false, errorMsg: "Password is incorrect." };
 
-    const token = jwt.sign(
-      {
-        id: user.id,
-        createAt: user.createAt,
-      },
-      this.configService.get("SECRET_JWT_KEY"),
-      { algorithm: "RS256" },
-    );
+      console.log(user.id);
+      console.log(this.configService.get("SECRET_KEY"));
 
-    return { ok: true, errorMsg: "", token: "" };
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+        },
+        this.configService.get("SECRET_KEY"),
+      );
+
+      return { ok: true, token };
+    } catch (e) {
+      return { ok: true, errorMsg: "unknown Error" };
+    }
   }
 }
