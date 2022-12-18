@@ -1,14 +1,9 @@
 ## User Module
 
-> nest g mo users <br />
+> nest g mo users
 
 > App module, delete line "RestaurantModule", "RestaurantEntity"
 
 > user.entity.ts generate.
 
 ## Common Module
-
-```javascript
-// return type 정의?
-```
-
