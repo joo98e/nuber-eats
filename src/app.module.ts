@@ -1,5 +1,5 @@
 import * as Joi from "joi";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -8,6 +8,7 @@ import { UsersModule } from "./users/users.module";
 import { CommonModule } from "./common/common.module";
 import { User } from "@modules/users/entities/user.entity";
 import { JwtModule } from "./jwt/jwt.module";
+import { jwtMiddleware } from "@modules/jwt/jwt.middleware";
 
 const isProd = process.env.NODE_ENV === "prod";
 
@@ -44,7 +45,7 @@ const isProd = process.env.NODE_ENV === "prod";
     }),
     CommonModule,
     UsersModule,
-    JwtModule.forRoot({
+    JwtModule.register({
       privateKey: process.env.PRIVATE_KEY,
     }),
   ],

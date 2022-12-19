@@ -5,7 +5,7 @@ import { JwtModuleOptions } from "@modules/jwt/types/jwt-module-options.interfac
 @Module({})
 @Global()
 export class JwtModule {
-  static forRoot(options: JwtModuleOptions): DynamicModule {
+  static register(options: JwtModuleOptions): DynamicModule {
     return {
       module: JwtModule,
       providers: [

@@ -13,6 +13,9 @@ export class UserResolver {
     return 1;
   }
 
+  @Query((returns) => User)
+  me() {}
+
   @Mutation((returns) => CreateAccountOutputDto)
   async createAccount(
     @Args("input")
