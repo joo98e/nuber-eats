@@ -6,9 +6,9 @@ import { CreateAccountInputDto } from "@modules/users/dtos/create-account.dto";
 import { TryCatch } from "@modules/utils/decorator/catch.decorator";
 import { LoginInputDto, LoginOutputDto } from "@modules/users/dtos/login.dto";
 import { DefaultResponse } from "@modules/common/dtos/default.response";
-import { ConfigService } from "@nestjs/config";
 import * as jwt from "jsonwebtoken";
 import { JwtService } from "@modules/jwt/jwt.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class UserService {
@@ -55,13 +55,7 @@ export class UserService {
       const passwordCorrect = await user.checkPassword(password);
       if (!passwordCorrect) return { ok: false, errorMsg: "Password is incorrect." };
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-        },
-        this.configService.get("SECRET_KEY"),
-      );
+      const token = this.jwtService.sign({ id: user.id });
 
       return { ok: true, token };
     } catch (e) {
