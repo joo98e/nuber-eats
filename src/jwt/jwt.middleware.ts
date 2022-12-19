@@ -8,8 +8,3 @@ export class JwtMiddleware implements NestMiddleware {
     next();
   }
 }
-
-export function jwtMiddleware(req: Request, res: Response, next: NextFunction) {
-  console.log(req.headers);
-  next();
-}
