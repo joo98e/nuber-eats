@@ -1,6 +1,6 @@
 import { DefaultResponse } from "@modules/common/dtos/default.response";
 import { Field, InputType, ObjectType, PickType } from "@nestjs/graphql";
-import { User } from "@modules/users/entities/users.entity";
+import { User } from "@modules/users/entities/user.entity";
 
 @InputType()
 export class LoginInputDto extends PickType(User, ["email", "password"]) {}
