@@ -2,4 +2,8 @@ export interface JwtModuleOptions {
   privateKey: string;
 }
 
-export type JwtToken = string;
+export type JwtTokenString = string;
+
+export interface JwtSignObject {
+  id: number;
+}
