@@ -14,7 +14,10 @@ export class UserResolver {
   }
 
   @Query((returns) => User)
-  me() {}
+  me() {
+    console.log("here");
+    return {};
+  }
 
   @Mutation((returns) => CreateAccountOutputDto)
   async createAccount(

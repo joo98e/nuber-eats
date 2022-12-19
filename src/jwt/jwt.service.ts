@@ -9,5 +9,9 @@ export class JwtService {
     return jwt.sign(jwtSignObject, this.options.privateKey);
   }
 
+  verify(token: JwtTokenString) {
+    return jwt.verify(token, this.options.privateKey);
+  }
+
   constructor(@Inject(JWT_CONFIG_OPTIONS) private readonly options: JwtModuleOptions) {}
 }
