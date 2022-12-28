@@ -62,4 +62,8 @@ export class UserService {
       return { ok: true, errorMsg: "unknown Error" };
     }
   }
+
+  async findById(id: number): Promise<User> {
+    return this.userRepository.findOne({ where: { id } });
+  }
 }
