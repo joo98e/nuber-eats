@@ -1,10 +1,10 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class DefaultResponse {
-  @Field(type => Boolean)
+export class CoreOutput {
+  @Field((type) => Boolean)
   ok: boolean;
 
-  @Field(type => String)
+  @Field((type) => String, { nullable: true })
   errorMsg?: string;
 }
