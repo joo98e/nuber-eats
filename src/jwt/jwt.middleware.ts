@@ -11,13 +11,13 @@ export class JwtMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     if (JWT_HEADER_KEY in req.headers) {
       const token = req.headers[JWT_HEADER_KEY];
-      const decoded = this.jwtService.verify(token.toString());
-      if (typeof decoded === "object" && decoded.hasOwnProperty("id")) {
-        try {
+      try {
+        const decoded = this.jwtService.verify(token.toString());
+        if (typeof decoded === "object" && decoded.hasOwnProperty("id")) {
           req["user"] = await this.usersService.findById(decoded["id"]);
-        } catch (e) {
-          throw new Error(`unknown user.`);
         }
+      } catch (e) {
+        throw new Error(`unknown user.`);
       }
     }
 
