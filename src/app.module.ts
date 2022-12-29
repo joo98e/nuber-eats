@@ -41,8 +41,7 @@ const isProd = process.env.NODE_ENV === "prod";
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,
       driver: ApolloDriver,
-      context: async ({ req }) => ({
-        // the user is from jwt middleware
+      context: ({ req }) => ({
         user: req["user"],
       }),
     }),

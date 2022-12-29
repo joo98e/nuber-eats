@@ -1,9 +1,9 @@
 import { InputType, ObjectType, PickType } from "@nestjs/graphql";
 import { User } from "@modules/users/entities/user.entity";
-import { DefaultResponse } from "@modules/common/dtos/default.response";
+import { CoreOutput } from "@modules/common/dtos/coreOutput";
 
 @InputType()
-export class CreateAccountInputDto extends PickType(User, ["email", "password", "role"]) {}
+export class CreateAccountInput extends PickType(User, ["email", "password", "role"]) {}
 
 @ObjectType()
-export class CreateAccountOutputDto extends DefaultResponse {}
+export class CreateAccountOutput extends CoreOutput {}

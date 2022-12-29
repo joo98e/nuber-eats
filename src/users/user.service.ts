@@ -2,11 +2,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "@modules/users/entities/user.entity";
 import { Repository } from "typeorm";
 import { Injectable } from "@nestjs/common";
-import { CreateAccountInputDto } from "@modules/users/dtos/create-account.dto";
+import { CreateAccountInput } from "@modules/users/dtos/create-account.dto";
 import { TryCatch } from "@modules/utils/decorator/catch.decorator";
-import { LoginInputDto, LoginOutputDto } from "@modules/users/dtos/login.dto";
-import { DefaultResponse } from "@modules/common/dtos/default.response";
-import * as jwt from "jsonwebtoken";
+import { LoginInput, LoginOutput } from "@modules/users/dtos/login.dto";
+import { CoreOutput } from "@modules/common/dtos/coreOutput";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { ConfigService } from "@nestjs/config";
 
@@ -20,7 +19,7 @@ export class UserService {
   ) {}
 
   @TryCatch("Could not create Account.")
-  async createAccount({ email, password, role }: CreateAccountInputDto): Promise<DefaultResponse> {
+  async createAccount({ email, password, role }: CreateAccountInput): Promise<CoreOutput> {
     const exists = await this.userRepository.findOne({
       where: {
         email,
@@ -45,7 +44,7 @@ export class UserService {
     return { ok: true };
   }
 
-  async login({ email, password }: LoginInputDto): Promise<LoginOutputDto> {
+  async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
       const user = await this.userRepository.findOne({ where: { email } });
       if (!user) {
