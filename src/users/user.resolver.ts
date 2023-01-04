@@ -77,8 +77,8 @@ export class UserResolver {
   }
 
   @Mutation((returns) => VerifyEmailOutput)
-  async verifyEmail(@Args("input") verifyEmailInput: VerifyEmailInput): Promise<VerifyEmailOutput> {
-    const booleanPromise = this.usersService.verifyEmail(verifyEmailInput.code);
+  async verifyEmail(@Args("input") { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
+    const booleanPromise = this.usersService.verifyEmail(code);
 
     return {
       ok: false,
