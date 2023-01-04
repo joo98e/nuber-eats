@@ -96,4 +96,16 @@ export class UserService {
 
     return await this.userRepository.save(user);
   }
+
+  async verifyEmail(code: string): Promise<Boolean> {
+    const verification = await this.verificationRepository.findOne({
+      where: { code },
+      relations: ["user"],
+    });
+    if (verification) {
+      console.log(verification, verification.user);
+    }
+
+    return false;
+  }
 }
