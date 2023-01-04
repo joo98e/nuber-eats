@@ -8,6 +8,8 @@ import { LoginInput, LoginOutput } from "@modules/users/dtos/login.dto";
 import { CoreOutput } from "@modules/common/dtos/coreOutput";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { ConfigService } from "@nestjs/config";
+import { EditProfileInput } from "@modules/users/dtos/edit-profile.dto";
+import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
 
 @Injectable()
 export class UserService {
@@ -64,5 +66,17 @@ export class UserService {
 
   async findById(id: number): Promise<User> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  async editProfile(userId: number, { email, password }: EditProfileInput): Promise<UpdateResult> {
+    return await this.userRepository.update(
+      {
+        id: userId,
+      },
+      {
+        email,
+        password,
+      },
+    );
   }
 }

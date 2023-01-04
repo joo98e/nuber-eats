@@ -7,15 +7,11 @@ import { UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@modules/auth/auth.guard";
 import { AuthUser } from "@modules/auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
+import { EditProfileInput, EditProfileOutput } from "@modules/users/dtos/edit-profile.dto";
 
 @Resolver((of) => User)
 export class UserResolver {
   constructor(private readonly usersService: UserService) {}
-
-  @Query((returns) => Number)
-  getUser() {
-    return 1;
-  }
 
   @Query((returns) => User)
   @UseGuards(AuthGuard)
@@ -58,5 +54,24 @@ export class UserResolver {
   async login(@Args("input") loginInput: LoginInput): Promise<LoginOutput> {
     const { ok, errorMsg, token } = await this.usersService.login(loginInput);
     return { ok, errorMsg, token };
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => EditProfileOutput)
+  async editProfile(
+    @AuthUser() authUser: User,
+    @Args("input") editProfileInput: EditProfileInput,
+  ): Promise<EditProfileOutput> {
+    try {
+      await this.usersService.editProfile(authUser.id, editProfileInput);
+      return {
+        ok: true,
+      };
+    } catch (e) {
+      return {
+        ok: false,
+        errorMsg: "profile update is fail",
+      };
+    }
   }
 }
