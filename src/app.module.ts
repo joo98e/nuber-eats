@@ -6,6 +6,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
 import { UsersModule } from "./users/users.module";
 import { User } from "@modules/users/entities/user.entity";
+import { Verification } from "@modules/users/entities/verification.entity";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "@modules/jwt/jwt.middleware";
 
@@ -36,7 +37,7 @@ const isProd = process.env.NODE_ENV === "prod";
       database: process.env.DB_DATABASE,
       synchronize: !isProd, // db push
       logging: isProd,
-      entities: [User],
+      entities: [User, Verification],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: true,

@@ -8,6 +8,7 @@ import { LoginInput, LoginOutput } from "@modules/users/dtos/login.dto";
 import { CoreOutput } from "@modules/common/dtos/coreOutput";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { ConfigService } from "@nestjs/config";
+import { EditProfileInput } from "@modules/users/dtos/edit-profile.dto";
 
 @Injectable()
 export class UserService {
@@ -64,5 +65,24 @@ export class UserService {
 
   async findById(id: number): Promise<User> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  // user.update 반환 타입 : Promise<UpdateResult>
+  // update 는 entity 의 존재 여부와 상관 없이 쿼리만 보낸다.
+  // 그래서, BeforeInsert, BeforeUpdate 등의 hook 호출이 되지 않는다.
+  // update 는 javascript 로 쿼리를 보내는 것이 아니며 정말 단지 쿼리만 보낸다.
+  async editProfile(userId: number, editProfileInput: EditProfileInput): Promise<User> {
+    console.log(editProfileInput);
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (editProfileInput.email) {
+      user.email = editProfileInput.email;
+    }
+
+    if (editProfileInput.password) {
+      user.password = editProfileInput.password;
+    }
+
+    return await this.userRepository.save(user);
   }
 }

@@ -1,4 +1,4 @@
-import { BeforeInsert, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
 import { CoreEntity } from "@modules/common/entities/core.entity";
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 import * as bcrypt from "bcrypt";
@@ -38,6 +38,7 @@ export class User extends CoreEntity {
   role: UserRoleEnum;
 
   @BeforeInsert()
+  @BeforeUpdate()
   async hashPassword(): Promise<void> {
     try {
       this.password = await bcrypt.hash(this.password, 10);
