@@ -28,6 +28,7 @@ export class UserService {
       where: {
         email,
       },
+      relations: ["user1"],
     });
 
     if (exists) {
@@ -103,7 +104,8 @@ export class UserService {
       relations: ["user"],
     });
     if (verification) {
-      console.log(verification, verification.user);
+      verification.user.verified = true;
+      await this.userRepository.save(verification.user);
     }
 
     return false;
