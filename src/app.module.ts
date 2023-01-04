@@ -6,9 +6,9 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
 import { UsersModule } from "./users/users.module";
 import { User } from "@modules/users/entities/user.entity";
-import { Verification } from "@modules/users/entities/verification.entity";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "@modules/jwt/jwt.middleware";
+import { Verification } from "@modules/users/entities/verification.entity";
 
 const isProd = process.env.NODE_ENV === "prod";
 

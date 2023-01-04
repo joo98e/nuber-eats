@@ -9,12 +9,15 @@ import { CoreOutput } from "@modules/common/dtos/coreOutput";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { ConfigService } from "@nestjs/config";
 import { EditProfileInput } from "@modules/users/dtos/edit-profile.dto";
+import { Verification } from "@modules/users/entities/verification.entity";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Verification)
+    private readonly verificationRepository: Repository<Verification>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
@@ -25,6 +28,7 @@ export class UserService {
       where: {
         email,
       },
+      relations: ["user1"],
     });
 
     if (exists) {
@@ -34,11 +38,17 @@ export class UserService {
       };
     }
 
-    await this.userRepository.save(
+    const user = await this.userRepository.save(
       this.userRepository.create({
         email,
         password,
         role,
+      }),
+    );
+
+    await this.verificationRepository.save(
+      this.verificationRepository.create({
+        user,
       }),
     );
 
@@ -77,6 +87,8 @@ export class UserService {
 
     if (editProfileInput.email) {
       user.email = editProfileInput.email;
+      user.verified = false;
+      await this.verificationRepository.save(this.verificationRepository.create({ user }));
     }
 
     if (editProfileInput.password) {
@@ -84,5 +96,18 @@ export class UserService {
     }
 
     return await this.userRepository.save(user);
+  }
+
+  async verifyEmail(code: string): Promise<Boolean> {
+    const verification = await this.verificationRepository.findOne({
+      where: { code },
+      relations: ["user"],
+    });
+    if (verification) {
+      verification.user.verified = true;
+      await this.userRepository.save(verification.user);
+    }
+
+    return false;
   }
 }
