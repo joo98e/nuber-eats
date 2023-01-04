@@ -8,6 +8,7 @@ import { AuthGuard } from "@modules/auth/auth.guard";
 import { AuthUser } from "@modules/auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "@modules/users/dtos/edit-profile.dto";
+import { VerifyEmailInput, VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 
 @Resolver((of) => User)
 export class UserResolver {
@@ -74,4 +75,7 @@ export class UserResolver {
       };
     }
   }
+
+  @Mutation((returns) => VerifyEmailOutput)
+  verifyEmail(@Args("input") verifyEmailInput: VerifyEmailInput) {}
 }
