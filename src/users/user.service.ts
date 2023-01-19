@@ -132,7 +132,10 @@ export class UserService {
       });
       if (verification) {
         verification.user.verified = true;
+
         await this.userRepository.save(verification.user);
+        await this.verificationRepository.delete(verification.id);
+
         return {
           ok: true,
         };
