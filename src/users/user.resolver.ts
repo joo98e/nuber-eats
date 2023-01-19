@@ -23,23 +23,11 @@ export class UserResolver {
   @UseGuards(AuthGuard)
   @Query((returns) => UserProfileOutput)
   async userProfile(@Args() userProfileInputDto: UserProfileInput): Promise<UserProfileOutput> {
-    try {
-      const user = await this.usersService.findById(userProfileInputDto.userId);
-
-      if (!user) {
-        throw Error();
-      }
-
-      return {
-        ok: true,
-        user,
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        errorMsg: "user is not exist or not found.",
-      };
-    }
+    const { ok, errorMsg } = await this.usersService.findById(userProfileInputDto.userId);
+    return {
+      ok,
+      errorMsg,
+    };
   }
 
   @Mutation((returns) => CreateAccountOutput)
@@ -63,25 +51,19 @@ export class UserResolver {
     @AuthUser() authUser: User,
     @Args("input") editProfileInput: EditProfileInput,
   ): Promise<EditProfileOutput> {
-    try {
-      await this.usersService.editProfile(authUser.id, editProfileInput);
-      return {
-        ok: true,
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        errorMsg: "profile update is fail",
-      };
-    }
+    const { ok, errorMsg } = await this.usersService.editProfile(authUser.id, editProfileInput);
+    return {
+      ok,
+      errorMsg,
+    };
   }
 
   @Mutation((returns) => VerifyEmailOutput)
   async verifyEmail(@Args("input") { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
-    const booleanPromise = this.usersService.verifyEmail(code);
-
+    const { ok, errorMsg } = await this.usersService.verifyEmail(code);
     return {
-      ok: false,
+      ok,
+      errorMsg,
     };
   }
 }
