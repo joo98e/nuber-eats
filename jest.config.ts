@@ -12,8 +12,9 @@ const config: Config = {
     "^@modules/(.*)": ["<rootDir>/src/$1"],
     "^@common/(.*)": ["<rootDir>/common/$1"],
   },
-  collectCoverageFrom: ["**/*.(t|j)s"],
+  collectCoverageFrom: ["**/*.service.(t|j)s"],
   coverageDirectory: "../coverage",
+  coveragePathIgnorePatterns: ["node_modules", "dist"],
   testEnvironment: "node",
 };
 
