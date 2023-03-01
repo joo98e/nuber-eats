@@ -12,6 +12,7 @@ import { EditProfileInput, EditProfileOutput } from "@modules/users/dtos/edit-pr
 import { Verification } from "@modules/users/entities/verification.entity";
 import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
+import { MailService } from "@modules/mail/mail.service";
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,7 @@ export class UserService {
     private readonly verificationRepository: Repository<Verification>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   @TryCatch("Could not create Account.")
