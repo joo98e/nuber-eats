@@ -32,7 +32,6 @@ export class UserService {
       where: {
         email,
       },
-      relations: ["user1"],
     });
 
     if (exists) {

@@ -53,6 +53,7 @@ describe("userService Test", function () {
       ],
     }).compile();
     service = module.get<UserService>(UserService);
+    userRepository = module.get(getRepositoryToken(User));
   });
 
   it("defined Test", function () {
@@ -62,7 +63,20 @@ describe("userService Test", function () {
   it.todo("create Account");
 
   describe("create Account", () => {
-    it("should fail if user exist", () => {});
+    it("should fail if user exist", async () => {
+      userRepository.findOne.mockResolvedValue(User);
+
+      const coreOutputPromise = await service.createAccount({
+        email: "blabla@bla.com",
+        password: "blabla",
+        role: 0,
+      });
+
+      expect(coreOutputPromise).toMatchObject({
+        ok: false,
+        errorMsg: "There is User with that email already.",
+      });
+    });
   });
 
   it.todo("login");
