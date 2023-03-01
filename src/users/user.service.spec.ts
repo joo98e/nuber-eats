@@ -7,11 +7,11 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { MailService } from "@modules/mail/mail.service";
 
-const mockRepository = {
+const generateMockRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
-};
+});
 
 const mockJwtService = {
   sign: jest.fn(),
@@ -23,7 +23,7 @@ const mockMailService = {
 };
 
 describe("userService Test", function () {
-  let service: UserService;
+  let userService: UserService;
   let userRepository: MockRepository<User>;
 
   beforeAll(async () => {
@@ -32,11 +32,11 @@ describe("userService Test", function () {
         UserService,
         {
           provide: getRepositoryToken(User),
-          useValue: mockRepository,
+          useValue: generateMockRepository(),
         },
         {
           provide: getRepositoryToken(Verification),
-          useValue: mockRepository,
+          useValue: generateMockRepository(),
         },
         {
           provide: JwtService,
@@ -52,29 +52,47 @@ describe("userService Test", function () {
         },
       ],
     }).compile();
-    service = module.get<UserService>(UserService);
+    userService = module.get<UserService>(UserService);
     userRepository = module.get(getRepositoryToken(User));
   });
 
   it("defined Test", function () {
-    expect(service).toBeDefined();
+    expect(userService).toBeDefined();
   });
 
-  it.todo("create Account");
-
   describe("create Account", () => {
+    const createAccountArgs = {
+      email: "blabla@bla.com",
+      password: "password",
+      role: 0,
+    };
+
     it("should fail if user exist", async () => {
       userRepository.findOne.mockResolvedValue(User);
 
-      const coreOutputPromise = await service.createAccount({
-        email: "blabla@bla.com",
-        password: "blabla",
-        role: 0,
-      });
+      const coreOutputPromise = await userService.createAccount(createAccountArgs);
 
       expect(coreOutputPromise).toMatchObject({
         ok: false,
         errorMsg: "There is User with that email already.",
+      });
+    });
+
+    it("should create User", async () => {
+      const nullUser = userRepository.findOne.mockResolvedValue(undefined);
+      userRepository.create.mockReturnValue(createAccountArgs);
+      userRepository.save.mockReturnValue(User);
+
+      const result = await userService.createAccount(createAccountArgs);
+
+      expect(userRepository.create).toHaveBeenCalledTimes(1);
+      expect(userRepository.create).toHaveBeenCalledWith(createAccountArgs);
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(createAccountArgs);
+      expect(userRepository.save).toHaveReturnedWith(User);
+      expect(result).toHaveProperty("ok");
+      expect(result).toStrictEqual({
+        ok: true,
       });
     });
   });
