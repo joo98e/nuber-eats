@@ -6,6 +6,7 @@ import { JWT_CONFIG_OPTIONS } from "@modules/jwt/jwt.constants";
 @Injectable()
 export class JwtService {
   sign(jwtSignObject: JwtSignObject): JwtTokenString {
+    if (!("id" in jwtSignObject) || isNaN(jwtSignObject.id)) throw new Error();
     return jwt.sign(jwtSignObject, this.options.privateKey);
   }
 
