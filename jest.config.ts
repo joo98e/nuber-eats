@@ -10,6 +10,7 @@ const config: Config = {
   },
   moduleNameMapper: {
     "^@modules/(.*)": ["<rootDir>/src/$1"],
+    "^@common/(.*)": ["<rootDir>/common/$1"],
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
   coverageDirectory: "../coverage",

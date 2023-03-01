@@ -9,6 +9,7 @@ import { User } from "@modules/users/entities/user.entity";
 import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "@modules/jwt/jwt.middleware";
 import { Verification } from "@modules/users/entities/verification.entity";
+import { MailModule } from "./mail/mail.module";
 
 const isProd = process.env.NODE_ENV === "prod";
 
@@ -49,6 +50,11 @@ const isProd = process.env.NODE_ENV === "prod";
     UsersModule,
     JwtModule.register({
       privateKey: process.env.PRIVATE_KEY,
+    }),
+    MailModule.forRoot({
+      apiKey: process.env.MAILGUN_API_KEY,
+      domain: process.env.MAILGUN_DOMAIN_NAME,
+      fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
   ],
   controllers: [],
