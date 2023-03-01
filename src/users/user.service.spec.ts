@@ -3,7 +3,6 @@ import { Test } from "@nestjs/testing";
 import { User } from "@modules/users/entities/user.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Verification } from "@modules/users/entities/verification.entity";
-import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { MailService } from "@modules/mail/mail.service";
 
@@ -13,6 +12,7 @@ const generateMockRepository = () => ({
   save: jest.fn(),
 });
 
+// create Mock Service
 const mockJwtService = {
   sign: jest.fn(),
   verify: jest.fn(),
@@ -24,9 +24,23 @@ const mockMailService = {
 
 describe("userService Test", function () {
   let userService: UserService;
+  let jwtService: JwtService;
+  let mailService: MailService;
   let userRepository: MockRepository<User>;
+  let verificationRepository: MockRepository<Verification>;
 
-  beforeAll(async () => {
+  const ANONYMOUS_CODE = expect.any(String);
+  const createAccountArgs = {
+    email: "blabla@bla.com",
+    password: "password",
+    role: 0,
+  };
+  const verifyReturnValue = {
+    user: createAccountArgs,
+    code: ANONYMOUS_CODE,
+  };
+
+  beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
         UserService,
@@ -43,17 +57,17 @@ describe("userService Test", function () {
           useValue: mockJwtService,
         },
         {
-          provide: ConfigService,
-          useValue: {},
-        },
-        {
           provide: MailService,
           useValue: mockMailService,
         },
       ],
     }).compile();
+
     userService = module.get<UserService>(UserService);
+    jwtService = module.get<JwtService>(JwtService);
+    mailService = module.get<MailService>(MailService);
     userRepository = module.get(getRepositoryToken(User));
+    verificationRepository = module.get(getRepositoryToken(Verification));
   });
 
   it("defined Test", function () {
@@ -61,12 +75,6 @@ describe("userService Test", function () {
   });
 
   describe("create Account", () => {
-    const createAccountArgs = {
-      email: "blabla@bla.com",
-      password: "password",
-      role: 0,
-    };
-
     it("should fail if user exist", async () => {
       userRepository.findOne.mockResolvedValue(User);
 
@@ -79,9 +87,12 @@ describe("userService Test", function () {
     });
 
     it("should create User", async () => {
-      const nullUser = userRepository.findOne.mockResolvedValue(undefined);
+      userRepository.findOne.mockResolvedValue(undefined);
       userRepository.create.mockReturnValue(createAccountArgs);
-      userRepository.save.mockReturnValue(User);
+      userRepository.save.mockReturnValue(createAccountArgs);
+
+      verificationRepository.create.mockReturnValue(verifyReturnValue);
+      verificationRepository.save.mockReturnValue(verifyReturnValue);
 
       const result = await userService.createAccount(createAccountArgs);
 
@@ -89,7 +100,21 @@ describe("userService Test", function () {
       expect(userRepository.create).toHaveBeenCalledWith(createAccountArgs);
       expect(userRepository.save).toHaveBeenCalledTimes(1);
       expect(userRepository.save).toHaveBeenCalledWith(createAccountArgs);
-      expect(userRepository.save).toHaveReturnedWith(User);
+      expect(userRepository.save).toHaveReturnedWith(createAccountArgs);
+
+      expect(verificationRepository.create).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.create).toHaveBeenCalledWith({
+        user: createAccountArgs,
+      });
+      expect(verificationRepository.save).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.save).toHaveBeenCalledWith({
+        user: createAccountArgs,
+        code: ANONYMOUS_CODE,
+      });
+
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(createAccountArgs.email, ANONYMOUS_CODE);
+
       expect(result).toHaveProperty("ok");
       expect(result).toStrictEqual({
         ok: true,

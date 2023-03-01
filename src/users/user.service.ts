@@ -7,7 +7,6 @@ import { TryCatch } from "@modules/utils/decorator/catch.decorator";
 import { LoginInput, LoginOutput } from "@modules/users/dtos/login.dto";
 import { CoreOutput } from "@modules/common/dtos/coreOutput";
 import { JwtService } from "@modules/jwt/jwt.service";
-import { ConfigService } from "@nestjs/config";
 import { EditProfileInput, EditProfileOutput } from "@modules/users/dtos/edit-profile.dto";
 import { Verification } from "@modules/users/entities/verification.entity";
 import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
@@ -21,7 +20,6 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Verification)
     private readonly verificationRepository: Repository<Verification>,
-    private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -49,12 +47,13 @@ export class UserService {
       }),
     );
 
-    await this.verificationRepository.save(
+    const verification = await this.verificationRepository.save(
       this.verificationRepository.create({
         user,
       }),
     );
 
+    this.mailService.sendVerificationEmail(user.email, verification.code);
     return { ok: true };
   }
 
