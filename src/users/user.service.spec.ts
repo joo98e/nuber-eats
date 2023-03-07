@@ -13,8 +13,9 @@ const generateMockRepository = () => ({
 });
 
 // create Mock Service
+const SIGNED_TOKEN = "signed-token";
 const mockJwtService = {
-  sign: jest.fn().mockImplementation((object) => "signed-token"),
+  sign: jest.fn().mockImplementation((object) => SIGNED_TOKEN),
   verify: jest.fn(),
 };
 
@@ -177,9 +178,27 @@ describe("userService Test", function () {
       const result = await userService.login(loginUserArgs);
 
       expect(jwtService.sign).toHaveBeenCalledTimes(1);
-      expect(jwtService.sign).toHaveReturnedWith("signed-token");
+      expect(jwtService.sign).toHaveReturnedWith(SIGNED_TOKEN);
+    });
 
-      // todo coverage 이어서 하기
+    it("should fail if the password is wrong", async function () {
+      const mockedUser: Partial<User> = {
+        checkPassword: jest.fn(() => Promise.resolve(false)),
+      };
+
+      userRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await userService.login(loginUserArgs);
+      expect(result).toEqual({ ok: false, errorMsg: "Password is incorrect." });
+    });
+
+    it("should return token if password correct", async function () {
+      const mockedUser: Partial<User> = {
+        checkPassword: jest.fn(() => Promise.resolve(true)),
+      };
+
+      userRepository.findOne.mockResolvedValue(mockedUser);
+      const result = await userService.login(loginUserArgs);
+      expect(result).toEqual({ ok: true, token: SIGNED_TOKEN });
     });
   });
 
