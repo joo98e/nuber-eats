@@ -71,23 +71,22 @@ export class UserService {
 
       return { ok: true, token };
     } catch (e) {
-      return { ok: true, errorMsg: "unknown Error" };
+      return { ok: false, errorMsg: "unknown Error" };
     }
   }
 
   async findById(id: number): Promise<UserProfileOutput> {
     try {
-      const user = this.userRepository.findOne({ where: { id } });
-      if (!user) {
-        return {
-          ok: false,
-          errorMsg: "user not found.",
-        };
-      }
+      const user = await this.userRepository.findOneOrFail({ where: { id } });
+
+      return {
+        ok: true,
+        user,
+      };
     } catch (e) {
       return {
         ok: false,
-        errorMsg: e,
+        errorMsg: "User not found.",
       };
     }
   }
@@ -96,32 +95,25 @@ export class UserService {
   // update 는 entity 의 존재 여부와 상관 없이 쿼리만 보낸다.
   // 그래서, BeforeInsert, BeforeUpdate 등의 hook 호출이 되지 않는다.
   // update 는 javascript 로 쿼리를 보내는 것이 아니며 정말 단지 쿼리만 보낸다.
+  @TryCatch("AN_ERROR_HAS_OCCURRED")
   async editProfile(userId: number, editProfileInput: EditProfileInput): Promise<EditProfileOutput> {
-    try {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
-      if (editProfileInput.email) {
-        user.email = editProfileInput.email;
-        user.verified = false;
-        await this.verificationRepository.save(this.verificationRepository.create({ user }));
-      }
-
-      if (editProfileInput.password) {
-        user.password = editProfileInput.password;
-      }
-
-      await this.userRepository.save(user);
-
-      return {
-        ok: true,
-      };
-    } catch (e) {
-      console.log(e);
-      return {
-        ok: false,
-        errorMsg: e,
-      };
+    if (editProfileInput.email) {
+      user.email = editProfileInput.email;
+      user.verified = false;
+      await this.verificationRepository.save(this.verificationRepository.create({ user }));
     }
+
+    if (editProfileInput.password) {
+      user.password = editProfileInput.password;
+    }
+
+    await this.userRepository.save(user);
+
+    return {
+      ok: true,
+    };
   }
 
   async verifyEmail(code: string): Promise<VerifyEmailOutput> {
@@ -130,6 +122,7 @@ export class UserService {
         where: { code },
         relations: ["user"],
       });
+
       if (verification) {
         verification.user.verified = true;
 
@@ -140,8 +133,6 @@ export class UserService {
           ok: true,
         };
       }
-
-      throw new Error();
     } catch (e) {
       return { ok: false, errorMsg: e };
     }
