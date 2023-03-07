@@ -71,7 +71,7 @@ export class UserService {
 
       return { ok: true, token };
     } catch (e) {
-      return { ok: true, errorMsg: "unknown Error" };
+      return { ok: false, errorMsg: "unknown Error" };
     }
   }
 
@@ -133,8 +133,6 @@ export class UserService {
           ok: true,
         };
       }
-
-      throw new Error();
     } catch (e) {
       return { ok: false, errorMsg: e };
     }

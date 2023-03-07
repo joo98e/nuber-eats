@@ -144,6 +144,14 @@ describe("userService Test", function () {
       password: MOCK_PASSWORD,
     };
 
+    it("unknown Error", async () => {
+      userRepository.findOne.mockRejectedValue(new Error());
+
+      const result = await userService.login({ email: MOCK_EMAIL, password: MOCK_PASSWORD });
+
+      expect(result).toEqual({ ok: false, errorMsg: "unknown Error" });
+    });
+
     it("should fail if user does not exist", async () => {
       userRepository.findOne.mockReturnValue(undefined);
 
@@ -342,6 +350,19 @@ describe("userService Test", function () {
       expect(userRepository.save).toHaveBeenCalledWith(foundVerification.user);
       expect(verificationRepository.delete).toHaveBeenCalledTimes(1);
       expect(verificationRepository.delete).toHaveBeenCalledWith(foundVerification.id);
+    });
+
+    it("should throw Error when verify to email failed", async () => {
+      const TEMP_CODE = "code";
+      const MyError = new Error();
+
+      verificationRepository.findOne.mockRejectedValue(MyError);
+
+      const result = await userService.verifyEmail(TEMP_CODE);
+      expect(result).toStrictEqual({
+        ok: false,
+        errorMsg: MyError,
+      });
     });
   });
 });
