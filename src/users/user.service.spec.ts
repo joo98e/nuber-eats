@@ -224,9 +224,93 @@ describe("userService Test", function () {
   });
 
   describe("edit Profile", () => {
-    it("edit profile", () => {});
+    it("should change email", async () => {
+      const EDITED_EMAIL = "bla@bla.com";
+      const oldUser: Partial<User> = {
+        id: 1,
+        email: MOCK_EMAIL,
+        verified: true,
+      };
+      const newUser: Partial<User> = {
+        ...oldUser,
+        email: EDITED_EMAIL,
+        verified: false,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        input: { email: EDITED_EMAIL },
+      };
+      const newVerification = {
+        code: "code",
+      };
+
+      userRepository.findOne.mockResolvedValue(oldUser);
+      verificationRepository.create.mockReturnValue(newVerification);
+      verificationRepository.save.mockResolvedValue(newVerification);
+
+      const result = await userService.editProfile(editProfileArgs.userId, editProfileArgs.input);
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: editProfileArgs.userId } });
+
+      // expect(mailService.sendVerificationEmail).toHaveBeenCalledTimes(1); // 구현하지 않았음
+
+      expect(verificationRepository.create).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.create).toHaveBeenCalledWith({ user: newUser });
+      expect(verificationRepository.save).toHaveBeenCalledWith(newVerification);
+
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(newUser);
+    });
+
+    it("should change password", async () => {
+      const EDITED_PASSWORD = "password_new";
+      const oldUser: Partial<User> = {
+        id: 1,
+        email: MOCK_EMAIL,
+        password: MOCK_PASSWORD,
+        verified: true,
+      };
+      const newUser: Partial<User> = {
+        ...oldUser,
+        password: EDITED_PASSWORD,
+      };
+      const editProfileArgs = {
+        userId: 1,
+        input: { password: EDITED_PASSWORD },
+      };
+
+      userRepository.findOne.mockResolvedValue(oldUser);
+
+      const result = await userService.editProfile(editProfileArgs.userId, editProfileArgs.input);
+
+      expect(userRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: editProfileArgs.userId } });
+
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(newUser);
+
+      expect(result).toEqual({
+        ok: true,
+      });
+    });
+
+    it("should fail on Exception", async () => {
+      const ExceptionMessage = "AN_ERROR_HAS_OCCURRED";
+      const editProfileArgs = {
+        userId: 1,
+        input: {},
+      };
+
+      userRepository.findOne.mockRejectedValue(new Error(ExceptionMessage));
+
+      const result = await userService.editProfile(editProfileArgs.userId, editProfileArgs.input);
+      expect(result).toEqual({
+        ok: false,
+        error: ExceptionMessage,
+      });
+    });
   });
 
-  it.todo("editProfile");
   it.todo("mail Verification");
 });

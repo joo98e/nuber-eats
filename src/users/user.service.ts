@@ -95,32 +95,25 @@ export class UserService {
   // update 는 entity 의 존재 여부와 상관 없이 쿼리만 보낸다.
   // 그래서, BeforeInsert, BeforeUpdate 등의 hook 호출이 되지 않는다.
   // update 는 javascript 로 쿼리를 보내는 것이 아니며 정말 단지 쿼리만 보낸다.
+  @TryCatch("AN_ERROR_HAS_OCCURRED")
   async editProfile(userId: number, editProfileInput: EditProfileInput): Promise<EditProfileOutput> {
-    try {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
-      if (editProfileInput.email) {
-        user.email = editProfileInput.email;
-        user.verified = false;
-        await this.verificationRepository.save(this.verificationRepository.create({ user }));
-      }
-
-      if (editProfileInput.password) {
-        user.password = editProfileInput.password;
-      }
-
-      await this.userRepository.save(user);
-
-      return {
-        ok: true,
-      };
-    } catch (e) {
-      console.log(e);
-      return {
-        ok: false,
-        errorMsg: e,
-      };
+    if (editProfileInput.email) {
+      user.email = editProfileInput.email;
+      user.verified = false;
+      await this.verificationRepository.save(this.verificationRepository.create({ user }));
     }
+
+    if (editProfileInput.password) {
+      user.password = editProfileInput.password;
+    }
+
+    await this.userRepository.save(user);
+
+    return {
+      ok: true,
+    };
   }
 
   async verifyEmail(code: string): Promise<VerifyEmailOutput> {
