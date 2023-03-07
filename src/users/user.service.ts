@@ -122,6 +122,7 @@ export class UserService {
         where: { code },
         relations: ["user"],
       });
+
       if (verification) {
         verification.user.verified = true;
 

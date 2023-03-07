@@ -10,6 +10,7 @@ const generateMockRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  delete: jest.fn(),
   findOneOrFail: jest.fn(),
 });
 
@@ -312,5 +313,35 @@ describe("userService Test", function () {
     });
   });
 
-  it.todo("mail Verification");
+  describe("mail verification test", () => {
+    it("should verify email", async () => {
+      const TEMP_CODE = "CODE";
+
+      const foundUser: Partial<User> = {
+        id: 1,
+      };
+      const TEMP_USER = new User();
+
+      const foundVerification: Partial<Verification> = {
+        id: 1,
+        code: TEMP_CODE,
+        user: TEMP_USER,
+      };
+
+      verificationRepository.findOne.mockResolvedValue(foundVerification);
+      verificationRepository.delete.mockResolvedValue(true);
+
+      const result = await userService.verifyEmail(TEMP_CODE);
+      expect(verificationRepository.findOne).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.findOne).toHaveBeenCalledWith({
+        where: { code: TEMP_CODE },
+        relations: ["user"],
+      });
+
+      expect(userRepository.save).toHaveBeenCalledTimes(1);
+      expect(userRepository.save).toHaveBeenCalledWith(foundVerification.user);
+      expect(verificationRepository.delete).toHaveBeenCalledTimes(1);
+      expect(verificationRepository.delete).toHaveBeenCalledWith(foundVerification.id);
+    });
+  });
 });
