@@ -10,6 +10,7 @@ const generateMockRepository = () => ({
   findOne: jest.fn(),
   create: jest.fn(),
   save: jest.fn(),
+  findOneOrFail: jest.fn(),
 });
 
 // create Mock Service
@@ -202,7 +203,30 @@ describe("userService Test", function () {
     });
   });
 
-  it.todo("findById");
+  describe("findById", () => {
+    const findByIdArgs = { id: 1 };
+
+    it("should find an existing user", async () => {
+      userRepository.findOneOrFail.mockResolvedValue(findByIdArgs);
+      const result = await userService.findById(1);
+      expect(userRepository.findOneOrFail).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ ok: true, user: findByIdArgs });
+    });
+
+    it("should fail if no user if found", async () => {
+      userRepository.findOneOrFail.mockRejectedValue(new Error());
+      const result = await userService.findById(1);
+      expect(result).toEqual({
+        ok: false,
+        errorMsg: "User not found.",
+      });
+    });
+  });
+
+  describe("edit Profile", () => {
+    it("edit profile", () => {});
+  });
+
   it.todo("editProfile");
   it.todo("mail Verification");
 });
