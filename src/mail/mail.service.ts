@@ -31,8 +31,8 @@ export class MailService {
     }
   }
 
-  async sendVerificationEmail(email: string, code: string) {
-    await this.sendEmail("Verify Your Email", "verify-email", [
+  sendVerificationEmail(email: string, code: string) {
+    this.sendEmail("Verify Your Email", "verify-email", [
       { key: "code", value: code },
       { key: "username", value: email },
     ]);
