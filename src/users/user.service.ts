@@ -53,7 +53,7 @@ export class UserService {
       }),
     );
 
-    this.mailService.sendVerificationEmail(user.email, verification.code);
+    await this.mailService.sendVerificationEmail(user.email, verification.code);
     return { ok: true };
   }
 

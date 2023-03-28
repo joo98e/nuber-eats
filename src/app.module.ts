@@ -10,17 +10,20 @@ import { JwtModule } from "./jwt/jwt.module";
 import { JwtMiddleware } from "@modules/jwt/jwt.middleware";
 import { Verification } from "@modules/users/entities/verification.entity";
 import { MailModule } from "./mail/mail.module";
+import * as process from "process";
 
 const isProd = process.env.NODE_ENV === "prod";
+const isDev = process.env.NODE_ENV === "dev";
+const isTest = process.env.NODE_ENV === "test";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ".env.dev",
+      envFilePath: isDev ? ".env.dev" : ".env.test",
       ignoreEnvFile: isProd,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid("dev", "prod").required(),
+        NODE_ENV: Joi.string().valid("dev", "prod", "test").required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
@@ -39,8 +42,8 @@ const isProd = process.env.NODE_ENV === "prod";
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      synchronize: !isProd, // db push
-      logging: isProd,
+      synchronize: true, // db push
+      logging: isProd && isTest,
       entities: [User, Verification],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
