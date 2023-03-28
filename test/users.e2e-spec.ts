@@ -4,6 +4,12 @@ import { Test } from "@nestjs/testing";
 import { DataSource } from "typeorm";
 import * as request from "supertest";
 
+jest.mock("got", () => {
+  return {
+    post: jest.fn(),
+  };
+});
+
 const GRAPHQL_ENDPOINT = "/graphql" as const;
 
 describe("UserModule (e2e)", () => {
