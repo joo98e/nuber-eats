@@ -1,13 +1,11 @@
 import { MailService } from "@modules/mail/mail.service";
-import { Test } from "@nestjs/testing";
 import got from "got";
-import formData from "form-data";
+import * as FormData from "form-data";
+import { Test } from "@nestjs/testing";
 import { CONFIG_OPTIONS } from "@common/constants/configOptions";
 
-jest.mock("got", () => {});
-jest.mock("form-data", () => ({
-  append: jest.fn(),
-}));
+jest.mock("got");
+jest.mock("form-data");
 
 describe("Mail Service", () => {
   let service: MailService;
@@ -42,9 +40,7 @@ describe("Mail Service", () => {
         code: "code",
       };
 
-      jest.spyOn(service, "sendEmail").mockImplementation(async () => {
-        console.log("spy On");
-      });
+      jest.spyOn(service, "sendEmail").mockImplementation(async () => true);
 
       service.sendVerificationEmail(sendEmailArgs.email, sendEmailArgs.code);
 
@@ -55,5 +51,24 @@ describe("Mail Service", () => {
       ]);
     });
   });
-  it.todo("sendVerificationEmail");
+
+  describe("sendVerificationEmail", () => {
+    it("sends email", async function () {
+      const ok = await service.sendEmail("", "", []);
+
+      const formSpy = jest.spyOn(FormData.prototype, "append");
+      expect(formSpy).toHaveBeenCalledTimes(4);
+      expect(got.post).toHaveBeenCalledWith(expect.any(String), expect.any(Object));
+      expect(ok).toBeTruthy();
+    });
+
+    it("fails on Error", async function () {
+      jest.spyOn(got, "post").mockImplementation(() => {
+        throw new Error();
+      });
+
+      const ok = await service.sendEmail("", "", []);
+      expect(ok).toBeFalsy();
+    });
+  });
 });
