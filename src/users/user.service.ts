@@ -13,11 +13,13 @@ import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { MailService } from "@modules/mail/mail.service";
 
+export type UserRepository = Repository<User>;
+
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository: UserRepository,
     @InjectRepository(Verification)
     private readonly verificationRepository: Repository<Verification>,
     private readonly jwtService: JwtService,
@@ -86,6 +88,7 @@ export class UserService {
     } catch (e) {
       return {
         ok: false,
+        user: null,
         errorMsg: "User not found.",
       };
     }

@@ -5,6 +5,11 @@ import { DataSource } from "typeorm";
 import * as request from "supertest";
 import { LoginOutput } from "@modules/users/dtos/login.dto";
 import { CreateAccountOutput } from "@modules/users/dtos/create-account.dto";
+import { User } from "@modules/users/entities/user.entity";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { UserRepository } from "@modules/users/user.service";
+import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
+import { JWT_HEADER_KEY } from "@modules/jwt/jwt.constants";
 
 jest.mock("got", () => {
   return {
@@ -16,6 +21,7 @@ const GRAPHQL_ENDPOINT = "/graphql" as const;
 
 describe("UserModule (e2e)", () => {
   let app: INestApplication;
+  let userRepository: UserRepository;
 
   const USER_EMAIL = `"joo98e@gmail.com"`;
   const USER_PASSWORD = `"12345"`;
@@ -27,8 +33,10 @@ describe("UserModule (e2e)", () => {
       imports: [AppModule],
     }).compile();
     app = module.createNestApplication();
+    userRepository = module.get(getRepositoryToken(User));
     await app.init();
   });
+
   afterAll(async () => {
     const dataSource = new DataSource({
       type: "postgres",
@@ -101,6 +109,8 @@ describe("UserModule (e2e)", () => {
           expect(loginOutput.ok).toBeTruthy();
           expect(loginOutput.errorMsg).toBe(null);
           expect(loginOutput.token).toEqual(expect.any(String));
+
+          jwtToken = loginOutput.token;
         });
     });
 
@@ -130,14 +140,72 @@ describe("UserModule (e2e)", () => {
           expect(loginOutput.ok).toBeFalsy();
           expect(loginOutput.errorMsg).toBe("Password is incorrect.");
           expect(loginOutput.token).toEqual(null);
-
-          jwtToken = loginOutput.token;
         });
     });
   });
 
-  it.todo("userProfile");
+  describe("userProfile", () => {
+    let firstUserId: number;
+
+    beforeAll(async () => {
+      const [firstUser] = await userRepository.find();
+      firstUserId = firstUser.id;
+    });
+
+    it("should See a User Profile", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set(JWT_HEADER_KEY, jwtToken)
+        .send({
+          query: `
+          {
+            userProfile(userId:${firstUserId}) {
+              ok
+              errorMsg
+              user {
+                id,
+              }
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const userProfileOutput: UserProfileOutput = res.body?.data?.userProfile;
+          expect(userProfileOutput.ok).toBeTruthy();
+          expect(userProfileOutput.user.id).toBe(firstUserId);
+        });
+    });
+
+    it("The User Profile should not be found", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set(JWT_HEADER_KEY, jwtToken)
+        .send({
+          query: `
+          {
+            userProfile(userId: 666) {
+              ok
+              errorMsg
+              user {
+                id,
+              }
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const userProfileOutput: UserProfileOutput = res.body?.data?.userProfile;
+          expect(userProfileOutput.ok).toBeFalsy();
+          expect(userProfileOutput.user).toBe(null);
+        });
+    });
+  });
+
   it.todo("me");
+
   it.todo("verifyEmail");
+
   it.todo("editProfile");
 });
