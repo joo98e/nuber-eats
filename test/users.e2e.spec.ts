@@ -3,6 +3,8 @@ import { AppModule } from "@modules/app.module";
 import { Test } from "@nestjs/testing";
 import { DataSource } from "typeorm";
 import * as request from "supertest";
+import { LoginOutput } from "@modules/users/dtos/login.dto";
+import { CreateAccountOutput } from "@modules/users/dtos/create-account.dto";
 
 jest.mock("got", () => {
   return {
@@ -15,15 +17,18 @@ const GRAPHQL_ENDPOINT = "/graphql" as const;
 describe("UserModule (e2e)", () => {
   let app: INestApplication;
 
+  const USER_EMAIL = `"joo98e@gmail.com"`;
+  const USER_PASSWORD = `"12345"`;
+  const USER_ROLE = `OWNER`;
+  let jwtToken: string;
+
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
     app = module.createNestApplication();
     await app.init();
   });
-
   afterAll(async () => {
     const dataSource = new DataSource({
       type: "postgres",
@@ -40,10 +45,6 @@ describe("UserModule (e2e)", () => {
     await connection.destroy();
     void app.close();
   });
-
-  const USER_EMAIL = `"joo98e@gmail.com"`;
-  const USER_PASSWORD = `"12345"`;
-  const USER_ROLE = `OWNER`;
 
   describe("createAccount", () => {
     it("should create account", async () => {
@@ -65,8 +66,10 @@ describe("UserModule (e2e)", () => {
         })
         .expect(200)
         .expect((res) => {
-          expect(res.body.data.createAccount.ok).toBeTruthy();
-          expect(res.body.data.createAccount.errorMsg).toBeNull();
+          const createAccountOutput: CreateAccountOutput = res.body.data.createAccount;
+
+          expect(createAccountOutput.ok).toBeTruthy();
+          expect(createAccountOutput.errorMsg).toBeNull();
         });
     });
   });
@@ -93,15 +96,11 @@ describe("UserModule (e2e)", () => {
         })
         .expect(200)
         .expect((res) => {
-          const {
-            body: {
-              data: { login },
-            },
-          } = res;
+          const loginOutput: LoginOutput = res.body.data.login;
 
-          expect(login.ok).toBeTruthy();
-          expect(login.errorMsg).toBe(null);
-          expect(login.token).toEqual(expect.any(String));
+          expect(loginOutput.ok).toBeTruthy();
+          expect(loginOutput.errorMsg).toBe(null);
+          expect(loginOutput.token).toEqual(expect.any(String));
         });
     });
 
@@ -126,15 +125,13 @@ describe("UserModule (e2e)", () => {
         })
         .expect(200)
         .expect((res) => {
-          const {
-            body: {
-              data: { login },
-            },
-          } = res;
+          const loginOutput: LoginOutput = res.body.data.login;
 
-          expect(login.ok).toBeFalsy();
-          expect(login.errorMsg).toBe("Password is incorrect.");
-          expect(login.token).toEqual(null);
+          expect(loginOutput.ok).toBeFalsy();
+          expect(loginOutput.errorMsg).toBe("Password is incorrect.");
+          expect(loginOutput.token).toEqual(null);
+
+          jwtToken = loginOutput.token;
         });
     });
   });
