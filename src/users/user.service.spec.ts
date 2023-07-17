@@ -5,6 +5,8 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Verification } from "@modules/users/entities/verification.entity";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { MailService } from "@modules/mail/mail.service";
+import { LoginOutput } from "@modules/users/dtos/login.dto";
+import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 
 const generateMockRepository = () => ({
   findOne: jest.fn(),
@@ -198,7 +200,8 @@ describe("userService Test", function () {
 
       userRepository.findOne.mockResolvedValue(mockedUser);
       const result = await userService.login(loginUserArgs);
-      expect(result).toEqual({ ok: false, errorMsg: "Password is incorrect." });
+      const loginOutput: LoginOutput = { ok: false, errorMsg: "Password is incorrect." };
+      expect(result).toEqual(loginOutput);
     });
 
     it("should return token if password correct", async function () {
@@ -208,27 +211,32 @@ describe("userService Test", function () {
 
       userRepository.findOne.mockResolvedValue(mockedUser);
       const result = await userService.login(loginUserArgs);
-      expect(result).toEqual({ ok: true, token: SIGNED_TOKEN });
+      const loginOutput: LoginOutput = { ok: true, errorMsg: null, token: SIGNED_TOKEN };
+      expect(result).toEqual(loginOutput);
     });
   });
 
   describe("findById", () => {
-    const findByIdArgs = { id: 1 };
+    const findByIdArgs = {
+      id: 1,
+    };
 
     it("should find an existing user", async () => {
       userRepository.findOneOrFail.mockResolvedValue(findByIdArgs);
       const result = await userService.findById(1);
+      const userProfileOutput: UserProfileOutput = { ok: true, user: findByIdArgs as User };
       expect(userRepository.findOneOrFail).toHaveBeenCalledTimes(1);
-      expect(result).toEqual({ ok: true, user: findByIdArgs });
+      expect(result).toEqual(userProfileOutput);
     });
 
     it("should fail if no user if found", async () => {
       userRepository.findOneOrFail.mockRejectedValue(new Error());
       const result = await userService.findById(1);
-      expect(result).toEqual({
+      const userProfileFailOutput: UserProfileOutput = {
         ok: false,
         errorMsg: "User not found.",
-      });
+      };
+      expect(result).toEqual(userProfileFailOutput);
     });
   });
 

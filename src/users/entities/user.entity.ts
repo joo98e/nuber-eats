@@ -6,7 +6,7 @@ import { InternalServerErrorException } from "@nestjs/common";
 import { IsEmail, IsEnum } from "class-validator";
 import { Password } from "@modules/utils/global/types";
 
-enum UserRoleEnum {
+export enum UserRoleEnum {
   CLIENT,
   OWNER,
   DELIVERY,
