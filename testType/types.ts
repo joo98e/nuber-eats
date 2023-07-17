@@ -1,6 +1,3 @@
-import { number, string } from "joi";
-import { read } from "fs";
-
 type NuberEatsServiceType = "delivery" | "takeOut" | "inner";
 
 type UpperNuberEatsServiceType = Capitalize<NuberEatsServiceType>;
@@ -17,13 +14,13 @@ type OnUpperCase = {
 const onUpperCase: OnUpperCase = {
   onDelivery: "",
   onTakeOut: "",
-  onInner: "",
+  onInner: ""
 };
 
 const testingConstant: Test = {
   Delivery: "",
   TakeOut: "",
-  Inner: "",
+  Inner: ""
 };
 
 // ------------------------------------------------------------------------------------------------------------
@@ -33,7 +30,8 @@ class Tester {
   static B = new Tester("B", "테스터2");
   static C = new Tester("C", "테스터3");
 
-  constructor(readonly _name: string, readonly _desc: string) {}
+  constructor(readonly _name: string, readonly _desc: string) {
+  }
 
   static values(): Tester[] {
     return [this.A, this.B, this.C];
@@ -55,13 +53,15 @@ class Model {
     readonly options: {
       name: string;
       age: number;
-    },
-  ) {}
+    }
+  ) {
+  }
 
-  static values() {}
+  static values() {
+  }
 }
 
-function create<Class, Optional>(C: { new (U): Class }, options: Optional): Class {
+function create<Class, Optional>(C: { new(U): Class }, options: Optional): Class {
   return new C(options);
 }
 
@@ -73,14 +73,15 @@ create<
   }
 >(Model, {
   name: "good",
-  age: 29,
+  age: 29
 });
 
 // ------------------------------------------------------------------------------------------------------------
 type RegisterType = "email" | "kakao";
 
 class Person {
-  constructor(_name) {}
+  constructor(_name) {
+  }
 }
 
 class User extends Person {
@@ -117,12 +118,12 @@ const imply: ArrType = {
   Ab: "",
   Bc: "",
   Cd: "",
-  De: "",
+  De: ""
 };
 
 const partialImply: PartialArrType = {
   Bc: "",
-  Cd: "",
+  Cd: ""
 };
 
 const t = [0, null, undefined, "a"];
@@ -141,8 +142,8 @@ type Good = {
 const good: Good = {
   a: {
     name: null,
-    age: undefined,
-  },
+    age: undefined
+  }
 };
 
 /**
@@ -170,8 +171,11 @@ const customKeyType = ["apple", "banana", "grape", "very"] as const;
 export type CustomKeyType<T extends typeof customKeyType[number]> = CustomKeyMap[T];
 
 type CustomKeyMap = {
-  apple: string;
-  banana: boolean;
+  apple: () => boolean;
+  banana: (num: number) => number;
   grape: () => void;
-  very: number;
+  very: () => string;
 };
+
+
+const a: CustomKeyType<"apple"> = () => false;

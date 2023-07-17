@@ -41,12 +41,12 @@ describe("UserModule (e2e)", () => {
     void app.close();
   });
 
+  const USER_EMAIL = `"joo98e@gmail.com"`;
+  const USER_PASSWORD = `"12345"`;
+  const USER_ROLE = `OWNER`;
+
   describe("createAccount", () => {
     it("should create account", async () => {
-      const USER_EMAIL = `"joo98e@gmail.com"`;
-      const USER_PASSWORD = `"12345"`;
-      const USER_ROLE = `OWNER`;
-
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .send({
@@ -71,8 +71,42 @@ describe("UserModule (e2e)", () => {
     });
   });
 
+  describe("login", () => {
+    it("is Logged In", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+          mutation{
+            login(
+              input:{
+                email :${USER_EMAIL},
+                password :${USER_PASSWORD}
+              }
+            ){
+              ok
+              errorMsg
+              token
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+
+          expect(login.ok).toBeTruthy();
+          expect(login.error).toBeNull();
+          expect(login.token).toBe(expect.any(String));
+        });
+    });
+  });
+
   it.todo("userProfile");
-  it.todo("login");
   it.todo("me");
   it.todo("verifyEmail");
   it.todo("editProfile");
