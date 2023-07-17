@@ -72,7 +72,7 @@ describe("UserModule (e2e)", () => {
   });
 
   describe("login", () => {
-    it("is Logged In", () => {
+    it("correct id and password", () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
         .send({
@@ -100,8 +100,41 @@ describe("UserModule (e2e)", () => {
           } = res;
 
           expect(login.ok).toBeTruthy();
-          expect(login.error).toBeNull();
-          expect(login.token).toBe(expect.any(String));
+          expect(login.errorMsg).toBe(null);
+          expect(login.token).toEqual(expect.any(String));
+        });
+    });
+
+    it("incorrect id and password", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+          mutation{
+            login(
+              input:{
+                email :${USER_EMAIL},
+                password :"incorrect_password",
+              }
+            ){
+              ok
+              errorMsg
+              token
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const {
+            body: {
+              data: { login },
+            },
+          } = res;
+
+          expect(login.ok).toBeFalsy();
+          expect(login.errorMsg).toBe("Password is incorrect.");
+          expect(login.token).toEqual(null);
         });
     });
   });
