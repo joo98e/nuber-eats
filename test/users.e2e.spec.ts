@@ -210,7 +210,6 @@ describe("UserModule (e2e)", () => {
     it("should find my Profile", () => {
       return request(app.getHttpServer())
         .post(GRAPHQL_ENDPOINT)
-        .set(JWT_HEADER_KEY, jwtToken)
         .send({
           query: `
             {
@@ -222,15 +221,60 @@ describe("UserModule (e2e)", () => {
         })
         .expect(200)
         .expect((res) => {
-          const { email } = res.body.data.me;
-          expect(email).toBe(testUser.email);
+          const errors = res.body.errors;
+          expect(Boolean(errors)).toBeTruthy();
         });
     });
 
     it("should fail if does not exist jwtToken in 솓 header", () => {});
   });
 
-  it.todo("verifyEmail");
+  describe("editProfile", () => {
+    const newAnythingElseEmail = `joo98e3@gmail.com`;
+    it("should be possible change the email", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set(JWT_HEADER_KEY, jwtToken)
+        .send({
+          query: `
+          mutation {
+            editProfile (
+              input :{
+                email : "${newAnythingElseEmail}"
+              }
+            ){
+             ok 
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const data = res.body.data.editProfile;
+          expect(data.ok).toBeTruthy();
+        });
+    });
 
-  it.todo("editProfile");
+    it("should have been Changed to the new anything else email.", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set(JWT_HEADER_KEY, jwtToken)
+        .send({
+          query: `
+          query {
+            me{
+              email
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const me: User = res.body.data.me;
+          expect(me.email).toBe(newAnythingElseEmail);
+        });
+    });
+  });
+
+  // it.todo("verifyEmail");
 });

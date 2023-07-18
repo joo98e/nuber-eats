@@ -105,6 +105,11 @@ export class UserService {
     if (editProfileInput.email) {
       user.email = editProfileInput.email;
       user.verified = false;
+      await this.verificationRepository.delete({
+        user: {
+          id: userId,
+        },
+      });
       await this.verificationRepository.save(this.verificationRepository.create({ user }));
     }
 
