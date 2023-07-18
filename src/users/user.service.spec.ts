@@ -234,6 +234,7 @@ describe("userService Test", function () {
       const result = await userService.findById(1);
       const userProfileFailOutput: UserProfileOutput = {
         ok: false,
+        user: null,
         errorMsg: "User not found.",
       };
       expect(result).toEqual(userProfileFailOutput);

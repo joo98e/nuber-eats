@@ -23,9 +23,12 @@ describe("UserModule (e2e)", () => {
   let app: INestApplication;
   let userRepository: UserRepository;
 
-  const USER_EMAIL = `"joo98e@gmail.com"`;
-  const USER_PASSWORD = `"12345"`;
-  const USER_ROLE = `OWNER`;
+  const testUser = {
+    email: "joo98e@gmail.com",
+    password: "12345",
+    role: "OWNER",
+  };
+
   let jwtToken: string;
 
   beforeAll(async () => {
@@ -62,9 +65,9 @@ describe("UserModule (e2e)", () => {
           query: `
           mutation{
             createAccount(input :{
-              email: ${USER_EMAIL},
-              password : ${USER_PASSWORD},
-              role : ${USER_ROLE}
+              email: "${testUser.email}",
+              password : "${testUser.password}",
+              role: ${testUser.role}
             }){
               ok,
               errorMsg
@@ -91,8 +94,8 @@ describe("UserModule (e2e)", () => {
           mutation{
             login(
               input:{
-                email :${USER_EMAIL},
-                password :${USER_PASSWORD}
+                email :"${testUser.email}",
+                password :"${testUser.password}"
               }
             ){
               ok
@@ -122,7 +125,7 @@ describe("UserModule (e2e)", () => {
           mutation{
             login(
               input:{
-                email :${USER_EMAIL},
+                email :"${testUser.email}",
                 password :"incorrect_password",
               }
             ){
@@ -203,7 +206,29 @@ describe("UserModule (e2e)", () => {
     });
   });
 
-  it.todo("me");
+  describe("me", () => {
+    it("should find my Profile", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .set(JWT_HEADER_KEY, jwtToken)
+        .send({
+          query: `
+            {
+              me{
+                email
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const { email } = res.body.data.me;
+          expect(email).toBe(testUser.email);
+        });
+    });
+
+    it("should fail if does not exist jwtToken in 솓 header", () => {});
+  });
 
   it.todo("verifyEmail");
 
