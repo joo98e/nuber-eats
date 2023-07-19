@@ -13,13 +13,11 @@ import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { MailService } from "@modules/mail/mail.service";
 
-export type UserRepository = Repository<User>;
-
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: Repository<User>,
     @InjectRepository(Verification)
     private readonly verificationRepository: Repository<Verification>,
     private readonly jwtService: JwtService,
@@ -131,16 +129,18 @@ export class UserService {
         relations: ["user"],
       });
 
-      if (verification) {
-        verification.user.verified = true;
-
-        await this.userRepository.save(verification.user);
-        await this.verificationRepository.delete(verification.id);
-
-        return {
-          ok: true,
-        };
+      if (!verification) {
+        return { ok: false, errorMsg: "Could not find the email verification record." };
       }
+
+      verification.user.verified = true;
+
+      await this.userRepository.save(verification.user);
+      await this.verificationRepository.delete(verification.id);
+
+      return {
+        ok: true,
+      };
     } catch (e) {
       return { ok: false, errorMsg: e };
     }

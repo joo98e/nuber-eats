@@ -1,15 +1,16 @@
 import { INestApplication } from "@nestjs/common";
 import { AppModule } from "@modules/app.module";
 import { Test } from "@nestjs/testing";
-import { DataSource } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import * as request from "supertest";
 import { LoginOutput } from "@modules/users/dtos/login.dto";
 import { CreateAccountOutput } from "@modules/users/dtos/create-account.dto";
 import { User } from "@modules/users/entities/user.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { UserRepository } from "@modules/users/user.service";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { JWT_HEADER_KEY } from "@modules/jwt/jwt.constants";
+import { Verification } from "@modules/users/entities/verification.entity";
+import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 
 jest.mock("got", () => {
   return {
@@ -21,7 +22,8 @@ const GRAPHQL_ENDPOINT = "/graphql" as const;
 
 describe("UserModule (e2e)", () => {
   let app: INestApplication;
-  let userRepository: UserRepository;
+  let userRepository: Repository<User>;
+  let verificationRepository: Repository<Verification>;
 
   const testUser = {
     email: "joo98e@gmail.com",
@@ -37,6 +39,7 @@ describe("UserModule (e2e)", () => {
     }).compile();
     app = module.createNestApplication();
     userRepository = module.get(getRepositoryToken(User));
+    verificationRepository = module.get(getRepositoryToken(Verification));
     await app.init();
   });
 
@@ -276,5 +279,59 @@ describe("UserModule (e2e)", () => {
     });
   });
 
-  // it.todo("verifyEmail");
+  describe("verifyEmail", () => {
+    let verifyCode: string = "";
+    beforeAll(async () => {
+      const [verification] = await verificationRepository.find();
+      verifyCode = verification.code;
+    });
+
+    it("should be success when input the correct verify Code", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+          mutation {
+            verifyEmail(
+              input :{
+                code :"${verifyCode}"
+              }
+            ){
+              ok
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const { ok } = res.body.data.verifyEmail;
+          expect(ok).toBeTruthy();
+        });
+    });
+
+    it("should be failed when input the incorrect verify Code", () => {
+      return request(app.getHttpServer())
+        .post(GRAPHQL_ENDPOINT)
+        .send({
+          query: `
+          mutation {
+            verifyEmail(
+              input :{
+                code :"wrong Verification Code"
+              }
+            ){
+              ok,
+              errorMsg
+            }
+          }
+        `,
+        })
+        .expect(200)
+        .expect((res) => {
+          const { ok, errorMsg }: VerifyEmailOutput = res.body.data.verifyEmail;
+          expect(ok).toBeFalsy();
+          expect(errorMsg).toBe("Could not find the email verification record.");
+        });
+    });
+  });
 });
