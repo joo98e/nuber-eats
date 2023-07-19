@@ -1,7 +1,6 @@
 import { DynamicModule, Global, Module } from "@nestjs/common";
 import { JwtService } from "./jwt.service";
 import { JwtModuleOptions } from "@modules/jwt/types/jwt-module-options.interface";
-import { UserService } from "@modules/users/user.service";
 import { JWT_CONFIG_OPTIONS } from "@modules/jwt/jwt.constants";
 
 @Module({})
