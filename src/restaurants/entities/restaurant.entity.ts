@@ -5,7 +5,7 @@ import { CoreEntity } from "@modules/common/entities/core.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
 import { User } from "@modules/users/entities/user.entity";
 
-@InputType({
+@InputType("RestaurantInputType", {
   isAbstract: true,
   description: `Restaurant`,
 })

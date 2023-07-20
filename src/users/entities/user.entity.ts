@@ -15,7 +15,7 @@ export enum UserRoleEnum {
 
 registerEnumType(UserRoleEnum, { name: "UserRole" });
 
-@InputType({
+@InputType("UserInputType", {
   isAbstract: true,
   description: `
     UserRoleEnum : using EnumType

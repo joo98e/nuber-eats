@@ -4,7 +4,7 @@ import { IsString } from "class-validator";
 import { Column, Entity, OneToMany } from "typeorm";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 
-@InputType({
+@InputType("CategoryInputType", {
   isAbstract: true,
   description: "Category",
 })
@@ -21,7 +21,9 @@ export class Category extends CoreEntity {
   @IsString()
   coverImage: string;
 
-  @Field((type) => [Restaurant])
-  @OneToMany((type) => Restaurant, (restaurant) => restaurant.category)
+  @Field((type) => [Restaurant], {
+    nullable: true,
+  })
+  @OneToMany((type) => Restaurant, (restaurant) => restaurant.category, {})
   restaurants: Restaurant[];
 }
