@@ -1,10 +1,11 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from "typeorm";
 import { CoreEntity } from "@modules/common/entities/core.entity";
 import { Field, InputType, ObjectType, registerEnumType } from "@nestjs/graphql";
 import * as bcrypt from "bcrypt";
 import { InternalServerErrorException } from "@nestjs/common";
 import { IsBoolean, IsEmail, IsEnum, IsString } from "class-validator";
 import { Password } from "@modules/utils/global/types";
+import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 
 export enum UserRoleEnum {
   CLIENT,
@@ -14,7 +15,7 @@ export enum UserRoleEnum {
 
 registerEnumType(UserRoleEnum, { name: "UserRole" });
 
-@InputType({
+@InputType("UserInputType", {
   isAbstract: true,
   description: `
     UserRoleEnum : using EnumType
@@ -37,6 +38,10 @@ export class User extends CoreEntity {
   @Field((type) => UserRoleEnum)
   @IsEnum(UserRoleEnum)
   role: UserRoleEnum;
+
+  @Field((type) => [Restaurant])
+  @OneToMany((type) => Restaurant, (restaurant) => restaurant.category)
+  restaurants: Restaurant[];
 
   @Column({ default: false })
   @IsBoolean()

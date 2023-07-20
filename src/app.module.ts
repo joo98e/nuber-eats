@@ -13,6 +13,7 @@ import { MailModule } from "./mail/mail.module";
 import * as process from "process";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
+import { RestaurantsModule } from "@modules/restaurants/restaurants.module";
 
 const isProd = process.env.NODE_ENV === "prod";
 const isDev = process.env.NODE_ENV === "dev";
@@ -64,6 +65,7 @@ const isTest = process.env.NODE_ENV === "test";
       domain: process.env.MAILGUN_DOMAIN_NAME,
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
+    RestaurantsModule,
   ],
   controllers: [],
   providers: [],
