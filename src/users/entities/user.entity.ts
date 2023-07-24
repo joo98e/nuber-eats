@@ -8,9 +8,9 @@ import { Password } from "@modules/utils/global/types";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 
 export enum UserRoleEnum {
-  CLIENT,
-  OWNER,
-  DELIVERY,
+  CLIENT= "CLIENT",
+  OWNER = "OWNER",
+  DELIVERY = "DELIVERY",
 }
 
 registerEnumType(UserRoleEnum, { name: "UserRole" });
