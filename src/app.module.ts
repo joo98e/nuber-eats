@@ -14,6 +14,7 @@ import * as process from "process";
 import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
 import { RestaurantsModule } from "@modules/restaurants/restaurants.module";
+import { AuthModule } from "@modules/auth/auth.module";
 
 const isProd = process.env.NODE_ENV === "prod";
 const isDev = process.env.NODE_ENV === "dev";
@@ -66,6 +67,7 @@ const isTest = process.env.NODE_ENV === "test";
       fromEmail: process.env.MAILGUN_FROM_EMAIL,
     }),
     RestaurantsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

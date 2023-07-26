@@ -3,24 +3,23 @@ import { User } from "@modules/users/entities/user.entity";
 import { UserService } from "@modules/users/user.service";
 import { CreateAccountInput, CreateAccountOutput } from "@modules/users/dtos/create-account.dto";
 import { LoginInput, LoginOutput } from "@modules/users/dtos/login.dto";
-import { UseGuards } from "@nestjs/common";
-import { AuthGuard } from "@modules/auth/auth.guard";
 import { AuthUser } from "@modules/auth/auth-user.decorator";
 import { UserProfileInput, UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { EditProfileInput, EditProfileOutput } from "@modules/users/dtos/edit-profile.dto";
 import { VerifyEmailInput, VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
+import Roles from "@modules/auth/auth-roles.decorator";
 
 @Resolver((of) => User)
 export class UserResolver {
   constructor(private readonly usersService: UserService) {}
 
+  @Roles(["Any"])
   @Query((returns) => User)
-  @UseGuards(AuthGuard)
   me(@AuthUser() authUser: User) {
     return authUser;
   }
 
-  @UseGuards(AuthGuard)
+  @Roles(["Any"])
   @Query((returns) => UserProfileOutput)
   async userProfile(@Args() userProfileInputDto: UserProfileInput): Promise<UserProfileOutput> {
     const { ok, errorMsg, user } = await this.usersService.findById(userProfileInputDto.userId);
@@ -46,7 +45,7 @@ export class UserResolver {
     return { ok, errorMsg, token };
   }
 
-  @UseGuards(AuthGuard)
+  @Roles(["Any"])
   @Mutation((returns) => EditProfileOutput)
   async editProfile(
     @AuthUser() authUser: User,
