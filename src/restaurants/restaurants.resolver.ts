@@ -11,13 +11,14 @@ export class RestaurantsResolver {
   constructor(private readonly restaurantService: RestaurantsService) {}
 
   @Roles(["OWNER"])
-  @Mutation((returns) => Boolean)
+  @Mutation((returns) => CreateRestaurantOutput)
   async createRestaurant(
     @AuthUser() authUser: User,
     @Args("input")
     createRestaurantInput: CreateRestaurantInput,
   ): Promise<CreateRestaurantOutput> {
-    console.log(123123);
-    return await this.restaurantService.createRestaurant(authUser, createRestaurantInput);
+    const { ok, errorMsg } = await this.restaurantService.createRestaurant(authUser, createRestaurantInput);
+
+    return { ok, errorMsg };
   }
 }

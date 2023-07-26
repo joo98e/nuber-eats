@@ -18,26 +18,15 @@ export class Restaurant extends CoreEntity {
   @Length(5)
   name: string;
 
-  @Field((type) => String, { nullable: true })
-  @Column()
-  @IsString()
-  @Length(5, 24)
-  desc?: string;
-
   @Field((type) => String)
   @Column()
   @IsString()
   address: string;
 
   @Field((type) => String)
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   coverImage: string;
-
-  @Field((type) => String)
-  @Column()
-  @IsString()
-  ownerName: string;
 
   @Field((type) => Category, { nullable: true })
   @ManyToOne((type) => Category, (category) => category.restaurants, {
