@@ -6,21 +6,18 @@ import { AuthUser } from "@modules/auth/auth-user.decorator";
 import { User } from "@modules/users/entities/user.entity";
 import Roles from "@modules/auth/auth-roles.decorator";
 
-/**
- * of : 어떤 모양인지 알려준다.(Restaurant 를 위한 resolver)
- * Controller
- */
 @Resolver((of) => Restaurant)
 export class RestaurantsResolver {
   constructor(private readonly restaurantService: RestaurantsService) {}
 
+  @Roles(["OWNER"])
   @Mutation((returns) => Boolean)
-  @Roles(["CLIENT"])
   async createRestaurant(
     @AuthUser() authUser: User,
-    @Args("request")
+    @Args("input")
     createRestaurantInput: CreateRestaurantInput,
   ): Promise<CreateRestaurantOutput> {
+    console.log(123123);
     return await this.restaurantService.createRestaurant(authUser, createRestaurantInput);
   }
 }
