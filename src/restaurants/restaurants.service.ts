@@ -34,6 +34,7 @@ export class RestaurantsService {
 
       newRestaurant.category = category;
       await this.restaurantRepository.save(newRestaurant);
+
       return {
         ok: true,
         errorMsg: "",
@@ -41,7 +42,7 @@ export class RestaurantsService {
     } catch (e) {
       return {
         ok: false,
-        errorMsg: "Could not create Restaurant.",
+        errorMsg: "알 수 없는 이유로 식당을 만들 수 없습니다.",
       };
     }
   }
