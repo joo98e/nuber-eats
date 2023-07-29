@@ -1,12 +1,13 @@
 import { UserService } from "@modules/users/user.service";
 import { Test } from "@nestjs/testing";
-import { User } from "@modules/users/entities/user.entity";
+import { User, UserRoleEnum } from "@modules/users/entities/user.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Verification } from "@modules/users/entities/verification.entity";
 import { JwtService } from "@modules/jwt/jwt.service";
 import { MailService } from "@modules/mail/mail.service";
 import { LoginOutput } from "@modules/users/dtos/login.dto";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
+import { AuthUserKey } from "@modules/auth/auth-user.decorator";
 
 const generateMockRepository = () => ({
   findOne: jest.fn(),
@@ -76,7 +77,7 @@ describe("userService Test", function () {
     const createAccountArgs = {
       email: MOCK_EMAIL,
       password: MOCK_PASSWORD,
-      role: 0,
+      role: UserRoleEnum.CLIENT,
     };
     const verifyReturnValue = {
       user: createAccountArgs,
@@ -352,7 +353,7 @@ describe("userService Test", function () {
       expect(verificationRepository.findOne).toHaveBeenCalledTimes(1);
       expect(verificationRepository.findOne).toHaveBeenCalledWith({
         where: { code: TEMP_CODE },
-        relations: ["user"],
+        relations: [AuthUserKey],
       });
 
       expect(userRepository.save).toHaveBeenCalledTimes(1);

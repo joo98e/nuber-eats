@@ -15,6 +15,7 @@ import { Restaurant } from "@modules/restaurants/entities/restaurant.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
 import { RestaurantsModule } from "@modules/restaurants/restaurants.module";
 import { AuthModule } from "@modules/auth/auth.module";
+import { AuthUserKey } from "@modules/auth/auth-user.decorator";
 
 const isProd = process.env.NODE_ENV === "prod";
 const isDev = process.env.NODE_ENV === "dev";
@@ -54,7 +55,7 @@ const isTest = process.env.NODE_ENV === "test";
       autoSchemaFile: true,
       driver: ApolloDriver,
       context: ({ req }) => ({
-        user: req["user"],
+        user: req[AuthUserKey],
       }),
     }),
     UsersModule,

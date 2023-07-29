@@ -12,6 +12,7 @@ import { Verification } from "@modules/users/entities/verification.entity";
 import { VerifyEmailOutput } from "@modules/users/dtos/verify-email.dto";
 import { UserProfileOutput } from "@modules/users/dtos/user-profile.dto";
 import { MailService } from "@modules/mail/mail.service";
+import { AuthUserKey } from "@modules/auth/auth-user.decorator";
 
 @Injectable()
 export class UserService {
@@ -126,7 +127,7 @@ export class UserService {
     try {
       const verification = await this.verificationRepository.findOne({
         where: { code },
-        relations: ["user"],
+        relations: [AuthUserKey],
       });
 
       if (!verification) {
