@@ -9,6 +9,7 @@ import { AuthUserKey } from "@modules/auth/auth-user.decorator";
 export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
+  // override
   canActivate(context: ExecutionContext) {
     const roles: AllowedRoles[] = this.reflector.get<AllowedRoles[]>(ROLES_METADATA_KEY, context.getHandler());
 
