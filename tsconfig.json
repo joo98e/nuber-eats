@@ -11,7 +11,7 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "strictBindCallApply": false,
     "noImplicitAny": false,
     "forceConsistentCasingInFileNames": false,

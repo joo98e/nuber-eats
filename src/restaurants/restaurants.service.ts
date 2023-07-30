@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { CreateRestaurantInput, CreateRestaurantOutput } from "@modules/restaurants/dtos/create-restaurant.dto";
 import { User } from "@modules/users/entities/user.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
+import { EditRestaurantInput, EditRestaurantOutput } from "@modules/restaurants/dtos/edit-restaurant.dto";
 
 @Injectable()
 export class RestaurantsService {
@@ -45,5 +46,9 @@ export class RestaurantsService {
         errorMsg: "알 수 없는 이유로 식당을 만들 수 없습니다.",
       };
     }
+  }
+
+  editRestaurant(editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
+    return null;
   }
 }
