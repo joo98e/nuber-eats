@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from "@nestjs/graphql";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, RelationId } from "typeorm";
 import { IsString, Length } from "class-validator";
 import { CoreEntity } from "@modules/common/entities/core.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
@@ -40,4 +40,7 @@ export class Restaurant extends CoreEntity {
     onDelete: "CASCADE",
   })
   owner: User;
+
+  @RelationId((restaurant: Restaurant) => restaurant.owner)
+  ownerId: number;
 }

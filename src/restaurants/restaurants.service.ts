@@ -6,6 +6,8 @@ import { CreateRestaurantInput, CreateRestaurantOutput } from "@modules/restaura
 import { User } from "@modules/users/entities/user.entity";
 import { Category } from "@modules/restaurants/entities/category.entity";
 import { EditRestaurantInput, EditRestaurantOutput } from "@modules/restaurants/dtos/edit-restaurant.dto";
+import { TryCatch } from "@modules/utils/decorator/catch.decorator";
+import CategoryRepository from "@modules/restaurants/repositories/category.repository";
 
 @Injectable()
 export class RestaurantsService {
@@ -14,41 +16,61 @@ export class RestaurantsService {
     private readonly restaurantRepository: Repository<Restaurant>,
     @InjectRepository(Category)
     private readonly categories: Repository<Category>,
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
-  async createRestaurant(owner: User, createRestaurantInput: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
-    try {
-      const newRestaurant = this.restaurantRepository.create(createRestaurantInput);
-      newRestaurant.owner = owner;
-      const categoryName = createRestaurantInput.categoryName.trim().toLowerCase();
-      const categorySlug = categoryName.replace(/\s/gi, "-");
+  @TryCatch()
+  async getOrCreateCategory(name: string): Promise<Category> {
+    const categoryName = name.trim().toLowerCase();
+    const categorySlug = categoryName.replace(/\s/gi, "-");
 
-      let category = await this.categories.findOne({
-        where: {
-          slug: categorySlug,
-        },
-      });
+    let category = await this.categories.findOne({
+      where: {
+        slug: categorySlug,
+      },
+    });
 
-      if (!category) {
-        category = await this.categories.save(this.categories.create({ name: categoryName, slug: categorySlug }));
-      }
-
-      newRestaurant.category = category;
-      await this.restaurantRepository.save(newRestaurant);
-
-      return {
-        ok: true,
-        errorMsg: "",
-      };
-    } catch (e) {
-      return {
-        ok: false,
-        errorMsg: "알 수 없는 이유로 식당을 만들 수 없습니다.",
-      };
+    if (!category) {
+      category = await this.categories.save(this.categories.create({ name: categoryName, slug: categorySlug }));
     }
+
+    return category;
   }
 
-  editRestaurant(editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
+  @TryCatch("Could not create restaurant")
+  async createRestaurant(owner: User, createRestaurantInput: CreateRestaurantInput): Promise<CreateRestaurantOutput> {
+    const newRestaurant = this.restaurantRepository.create(createRestaurantInput);
+    newRestaurant.owner = owner;
+    newRestaurant.category = await this.getOrCreateCategory(createRestaurantInput.categoryName);
+    await this.restaurantRepository.save(newRestaurant);
+
+    return {
+      ok: true,
+      errorMsg: "",
+    };
+  }
+
+  @TryCatch("Could not edit restaurant")
+  async editRestaurant(owner: User, editRestaurantInput: EditRestaurantInput): Promise<EditRestaurantOutput> {
+    const restaurant = await this.restaurantRepository.findOne({
+      where: {
+        id: editRestaurantInput.restaurantId,
+      },
+    });
+
+    if (!restaurant) {
+      return {
+        ok: false,
+        errorMsg: "Restaurant not found",
+      };
+    }
+
+    if (restaurant.ownerId !== owner.id)
+      return {
+        ok: false,
+        errorMsg: "You can't edit a restaurant that you don't own",
+      };
+
     return null;
   }
 }
